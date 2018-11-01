@@ -19,8 +19,6 @@
                    <th>Dead Head</th>
                    </thead>
                    <tbody>
-
-{{--                   {{ dd($run->RunService) }}--}}
                         @foreach($run->RunService as $runService)
                             <tr>
                                 <td>{{ date('h:i a', strtotime($runService->RunSrv_TimeAtSrv) ) }}</td>

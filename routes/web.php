@@ -15,10 +15,9 @@ Route::get('/', function () {
 
     $data = \App\Route::all();
 
-    $runs = \App\Run::where('Run_Sch_Code', '051')->with('RunRoute.Route', 'RunService.StopService.Stop')->get();
+    $runs = \App\Run::where('Run_Sch_Code', '051')->with('RunRoute.Route', 'RunService.StopService.Stop')
+        ->get();
 
-//    dd($runs);
-//    $run->RunRoute->Route->Rte_ID
 
     return view('welcome')
         ->withRuns($runs);
