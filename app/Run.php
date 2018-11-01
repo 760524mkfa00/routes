@@ -9,7 +9,7 @@ class Run extends Model
     protected $table = "Run";
 
     public function RunService() {
-        return $this->hasMany('App\RunService', 'RunSrv_Run_AutoID', 'Run_AutoID');
+        return $this->hasMany('App\RunService', 'RunSrv_Run_AutoID', 'Run_AutoID')->orderBy('RunSrv_SeqNumber','asc');
     }
 
     public function  RunRoute() {
