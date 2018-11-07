@@ -15,4 +15,13 @@ class RunService extends Model
         return $this->hasOne('App\StopService', 'StopSrv_AutoID', 'RunSrv_StopSrv_AutoID');
     }
 
+    Static public function getStops($run) {
+            return RunService::select('RunSrv_TimeAtSrv', 'Stop_Desc', 'RunSrv_Dh')
+            ->join('StopService', 'StopSrv_AutoID', '=', 'RunSrv_StopSrv_AutoID')
+            ->join('Stop', 'Stop_AutoID', '=', 'StopSrv_Stop_AutoID')
+            ->where('RunSrv_Run_AutoID', '=', $run->Run_AutoID)
+            ->orderBy('RunSrv_SeqNumber','asc')
+            ->get();
+    }
+
 }

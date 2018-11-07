@@ -11,6 +11,7 @@
 |
 */
 
+
 Route::get('/', function () {
 
 
@@ -30,35 +31,45 @@ Route::get('/runs/{id}', function ($id) {
         ->groupBy('RunSrv_Run_Idx')
         ->get();
 
-
-    $runs = \App\Run::whereIn('Run_Idx', $runList->toArray())
-        ->with('RunRoute', 'RunRoute.Route', 'RunService.StopService.Stop')
+    $runs = DB::table('Run')
+        ->select('Run_AutoID', 'Run_Idx','Run_Desc', 'Rte_Desc', 'Rte_BusNumber', 'Rte_ID')
+        ->rightJoin('RunRoute', 'Run_AutoID', '=' ,'RunRte_Run_AutoID')
+        ->rightJoin('Route', 'Rte_AutoID', '=', 'RunRte_Rte_AutoID')
+        ->whereIn('Run_Idx', $runList->toArray())
+        ->orderBy('Rte_ID')
+        ->orderBy('Run_ToFrom')
         ->get();
 
-    $runs->map( function($item) {
-       $item->Rte_Num = $item->RunRoute->RunRte_Rte_ID;
-    });
+    dd($runs);
 
-    // Sort the collection based on a person's age.
-    $sorted1 = $runs->sort(function($a, $b) {
-        if ($a['Run_ToFrom'] == $b['Run_ToFrom']) {
-            return 0;
-        }
+    $stop = DB::table('RunService')
+        ->select('RunSrv_Run_AutoID', 'RunSrv_TimeAtSrv', 'Stop_Desc', 'RunSrv_Dh')
+        ->join('StopService', 'StopSrv_AutoID', '=', 'RunSrv_StopSrv_AutoID')
+        ->join('Stop', 'Stop_AutoID', '=', 'StopSrv_Stop_AutoID')
+        ->whereIn('RunSrv_Run_AutoID', $runs->pluck('Run_AutoID')->toArray())
+        ->orderBy('RunSrv_SeqNumber','asc')
+        ->get();
 
-        return ($a['Run_ToFrom'] < $b['Run_ToFrom']) ? -1 : 1;
-    });
+    $stops = $stop->groupBy('RunSrv_Run_AutoID');
 
-    // Sort the collection based on a person's age.
-    $sorted = $sorted1->sort(function($a, $b) {
-        if ($a['Rte_Num'] == $b['Rte_Num']) {
-            return 0;
-        }
+    dd($stops);
 
-        return ($a['Rte_Num'] < $b['Rte_Num']) ? -1 : 1;
-    });
+    foreach ($runs as $run) {
+        $run->stop = DB::table('RunService')
+            ->select('RunSrv_TimeAtSrv', 'Stop_Desc', 'RunSrv_Dh')
+            ->join('StopService', 'StopSrv_AutoID', '=', 'RunSrv_StopSrv_AutoID')
+            ->join('Stop', 'Stop_AutoID', '=', 'StopSrv_Stop_AutoID')
+            ->where('RunSrv_Run_AutoID', '=', $run->Run_AutoID)
+            ->orderBy('RunSrv_SeqNumber','asc')
+            ->get();
+
+//        $run->stop = \App\RunService::getStops($run);
+    }
+
+
 
     return view('welcome')
-        ->withRuns($sorted);
+        ->withRuns($runs);
 });
 
 

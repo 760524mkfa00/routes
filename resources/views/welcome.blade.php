@@ -10,19 +10,24 @@
     </head>
     <body>
             <div class="content">
+
                 @foreach($runs as $run)
-                    <h3>{{ $run->RunRoute->RunRte_Rte_ID . ' : ' . $run->Run_Desc }} <span>---Bus number: {{ $run->RunRoute->Route->Rte_BusNumber }}</span> </h3>
+                    <h3>{{ $run->Rte_ID . ' : ' . $run->Run_Desc }} <span>---Bus number: {{ $run->Rte_BusNumber }}</span> </h3>
                <table>
                    <thead>
                         <th>Time</th>
                         <th>Stop</th>
                    </thead>
                    <tbody>
-                        @foreach($run->RunService as $runService)
+                        @foreach($run->stop as $runService)
+
+{{--                            {{ dd($runService) }}--}}
+
                             @if($runService->RunSrv_Dh == 0)
                             <tr>
+{{--                                <td>{{ date('h:i a', strtotime($runService->RunSrv_TimeAtSrv)) }}</td>--}}
                                 <td>{{ $runService->RunSrv_TimeAtSrv->format('h:i a') }}</td>
-                                <td>{{ $runService->StopService->Stop->Stop_Desc }}</td>
+                                <td>{{ $runService->Stop_Desc }}</td>
                             </tr>
                             @endif
                         @endforeach
