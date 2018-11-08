@@ -19,14 +19,16 @@
                         <th>Stop</th>
                    </thead>
                    <tbody>
-                        @foreach($run->stop as $runService)
+
+{{--                    {{ dd($run) }}--}}
+                        @foreach($run->Stops as $runService)
 
 {{--                            {{ dd($runService) }}--}}
 
                             @if($runService->RunSrv_Dh == 0)
                             <tr>
 {{--                                <td>{{ date('h:i a', strtotime($runService->RunSrv_TimeAtSrv)) }}</td>--}}
-                                <td>{{ $runService->RunSrv_TimeAtSrv->format('h:i a') }}</td>
+                                <td>{{ $runService->DispTimeAtStop }}</td>
                                 <td>{{ $runService->Stop_Desc }}</td>
                             </tr>
                             @endif

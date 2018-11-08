@@ -33,39 +33,30 @@ Route::get('/runs/{id}', function ($id) {
 
     $runs = DB::table('Run')
         ->select('Run_AutoID', 'Run_Idx','Run_Desc', 'Rte_Desc', 'Rte_BusNumber', 'Rte_ID')
-        ->rightJoin('RunRoute', 'Run_AutoID', '=' ,'RunRte_Run_AutoID')
-        ->rightJoin('Route', 'Rte_AutoID', '=', 'RunRte_Rte_AutoID')
+        ->join('RunRoute', 'Run_AutoID', '=' ,'RunRte_Run_AutoID')
+        ->join('Route', 'Rte_AutoID', '=', 'RunRte_Rte_AutoID')
         ->whereIn('Run_Idx', $runList->toArray())
         ->orderBy('Rte_ID')
         ->orderBy('Run_ToFrom')
         ->get();
 
-    dd($runs);
-
     $stop = DB::table('RunService')
-        ->select('RunSrv_Run_AutoID', 'RunSrv_TimeAtSrv', 'Stop_Desc', 'RunSrv_Dh')
+        ->select('RunSrv_Run_AutoID', \DB::raw("FORMAT( RunSrv_TimeAtSrv, 'hh:mm tt') as DispTimeAtStop"), 'Stop_Desc', 'RunSrv_Dh')
         ->join('StopService', 'StopSrv_AutoID', '=', 'RunSrv_StopSrv_AutoID')
         ->join('Stop', 'Stop_AutoID', '=', 'StopSrv_Stop_AutoID')
         ->whereIn('RunSrv_Run_AutoID', $runs->pluck('Run_AutoID')->toArray())
-        ->orderBy('RunSrv_SeqNumber','asc')
+        ->orderBy('RunSrv_TimeAtSrv','asc')
+        ->groupBy('RunSrv_Run_AutoID', 'Stop_Desc', 'RunSrv_TimeAtSrv', 'RunSrv_Dh')
         ->get();
 
     $stops = $stop->groupBy('RunSrv_Run_AutoID');
 
-    dd($stops);
-
-    foreach ($runs as $run) {
-        $run->stop = DB::table('RunService')
-            ->select('RunSrv_TimeAtSrv', 'Stop_Desc', 'RunSrv_Dh')
-            ->join('StopService', 'StopSrv_AutoID', '=', 'RunSrv_StopSrv_AutoID')
-            ->join('Stop', 'Stop_AutoID', '=', 'StopSrv_Stop_AutoID')
-            ->where('RunSrv_Run_AutoID', '=', $run->Run_AutoID)
-            ->orderBy('RunSrv_SeqNumber','asc')
-            ->get();
-
-//        $run->stop = \App\RunService::getStops($run);
-    }
-
+    $runs->map( function ($item) use ($stops) {
+        $stops->map( function ($s) use ($item) {
+            if($s->first()->RunSrv_Run_AutoID == $item->Run_AutoID)
+                return $item->Stops = $s;
+        });
+    });
 
 
     return view('welcome')
