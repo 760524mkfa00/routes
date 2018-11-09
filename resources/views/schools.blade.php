@@ -7,23 +7,29 @@
 
         <title>Routes</title>
 
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <style>
+
+        </style>
+
     </head>
     <body>
+        <div class="container">
             <div class="content">
-
-                    <h3>Schools</h3>
-               <table>
-                   <thead>
-                        <th>School</th>
-                   </thead>
-                   <tbody>
-                        @foreach($schools as $school)
-                            <tr>
-                                <td><a href="/runs/{{ $school->Sch_Code }}"> {{ $school->Sch_Name }}</a></td>
-                            </tr>
-                        @endforeach
-                   </tbody>
-               </table>
+                <table class="table table-striped">
+                    <thead>
+                    <th>School</th>
+                    </thead>
+                    <tbody>
+                    @foreach($schools as $school)
+                        <tr>
+                            <td><a href="/runs/{{ $school->Sch_Code }}"> {{ $school->Sch_Name }}</a></td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
             </div>
+        </div>
+
     </body>
 </html>
